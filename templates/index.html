@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>student table</title>
+</head>
+
+<style>
+	.st{
+		margin-left: 50px;
+	}
+
+	ul{
+		list-style: none;
+		padding: 0;
+		margin-left: 50px;
+		width: 200px;
+
+	}
+	
+	li button{
+		-webkit-appearance:none;
+		border: green;
+		background: yellow;
+		color:red;
+		float: right;
+	}
+</style>
+<body>
+	<form class="st" id='form' action="/create" method="POST">
+		<input type="text" name="disc">
+		<input type="submit" value="create" style="    background: #d9e2df;">
+	</form>
+	<ul id="todos">
+      {% for d in names %}
+      <li><input class="check-completed" data-id="{{d.id}}"type="checkbox" {% if d.completed %} checked {% endif %}>{{ d.name }}
+      	<button class="delete-button" data-id={{d.id}}>&cross;</button>
+      </li>
+      {%  endfor  %}
+    </ul>
+    <script>
+    	const deleteBtns = document.querySelectorAll('.delete-button');
+      	for (let i = 0; i < deleteBtns.length; i++) {
+        const btn = deleteBtns[i];
+        btn.onclick = function(e) {
+          const id = e.target.dataset['id'];
+          fetch('/create/' + id, {
+            method: 'DELETE'
+          })
+          .then(function() {
+            const item = e.target.parentElement;
+            item.remove();
+          })
+        }
+      }
+    	const checkboxes=document.querySelectorAll('.check-completed');
+    	for (let i=0;i<checkboxes.length;i++){
+    		const checkbox=checkboxes[i]
+    		checkbox.onchange=function(e){
+    			console.log('event',e);
+    			const newCompleted=e.target.checked;
+    			const stid=e.target.dataset['id']
+    			fetch('/create/'+stid+'/set-completed',{
+    				method:'POST',
+    				body:JSON.stringify({
+    					'completed':newCompleted
+    				}),
+    				headers:{
+    					'Content-Type':'application/json'
+    				}
+    			})
+    		}
+    	}
+    </script>
+</body>
+</html>
