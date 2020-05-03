@@ -13,11 +13,19 @@ class student(db.Model):
 	id=db.Column(db.Integer,primary_key=True)
 	name=db.Column(db.String(),nullable=True)
 	completed=db.Column(db.Boolean,nullable=False)
+	list_id=db.Column(db.Integer,db.ForeignKey('todolists.id'),nullable=False)
+
 
 	def __repr__(self):
 		return f'<{self.id} {self.name}>'
 
 #db.create_all()
+class TodoList(db.Model):
+	__tablename__="todolists"
+	id=db.Column(db.Integer,primary_key=True)
+	name=db.Column(db.String(),nullable=False)
+	student=db.relationship('student',backref='list',lazy=True)
+
 
 @app.route('/create', methods=['POST'])
 def create_todo():
@@ -56,11 +64,15 @@ def del_student(id):
 	return jsonify({
 		'succuss':True
 		})
+@app.route('/lists/<id>')
+def get_list_id(id):
+	names=student.query.filter_by(id=id).order_by('id').all()
+	return render_template('index.html',names=names)
 
 @app.route('/')
 def index():
-	names=student.query.order_by('id').all()
-	return render_template('index.html',names=names)
+	return redirect(url_for('get_list_id',id=1))
+
 
 if __name__==('__main__'):
 	app.run(debug=True)
